@@ -14,7 +14,8 @@ module Graphics.GridDiagrams
 
 	-- * Lifted Cairo operations
     , liftCairo
-    , setLineWidth, setColor, selectFontFace, setFontSize, setLineCap
+    , setLineWidth, setColor, selectFontFace, setFontSize, setLineCap, setLineJoin
+    , FontSlant(..), FontWeight(..), LineCap(..), LineJoin(..)
     , fill, stroke, fillPreserve, fillStroke, extend
     , saved, translated
     , circle, rectangle, line, showText, showTextCentered
@@ -34,7 +35,7 @@ import Control.Monad.Trans
 import Control.Monad.Reader
 import Control.Monad.Writer
 import qualified Graphics.Rendering.Cairo as C
-import Graphics.Rendering.Cairo (FontSlant(..), FontWeight(..), LineCap(..))
+import Graphics.Rendering.Cairo (FontSlant(..), FontWeight(..), LineCap(..), LineJoin(..))
 
 -------------------------------------------------------------------------------
 -- Working with colors
@@ -176,6 +177,9 @@ setLineWidth = liftCairo . C.setLineWidth
 
 setLineCap :: LineCap -> Diagram
 setLineCap = liftCairo . C.setLineCap
+
+setLineJoin :: LineJoin -> Diagram
+setLineJoin = liftCairo . C.setLineJoin
 
 setFontSize :: Double -> Diagram
 setFontSize = liftCairo . C.setFontSize
