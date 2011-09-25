@@ -4,7 +4,7 @@ module Graphics.GridDiagrams
     ( -- * Colors
       Color (..)
     , rgba, rgb, hsla, hsl
-    , transparent, gray, white, black, red, green, blue
+    , transparent, gray, white, black, red, green, blue, cyan, magenta, yellow
     , alpha, over
     
     , Render, Diagram, RenderOpts(..), defaultRenderOpts
@@ -79,13 +79,16 @@ rgb r g b = RGBA r g b 1
 gray :: Double -> Color
 gray x = rgb x x x
 
-transparent,white,black,red,green,blue :: Color
+transparent, white, black, red, green, blue, cyan, magenta, yellow :: Color
 transparent = RGBA 0 0 0 0
-white = rgb 1 1 1
-black = rgb 0 0 0
-red   = rgb 1 0 0
-green = rgb 0 1 0
-blue  = rgb 0 0 1
+white   = rgb 1 1 1
+black   = rgb 0 0 0
+red     = rgb 1 0 0
+green   = rgb 0 1 0
+blue    = rgb 0 0 1
+cyan    = rgb 0 1 1
+magenta = rgb 1 0 1
+yellow  = rgb 1 1 0
 
 alpha :: Double -> Color -> Color
 alpha f (RGBA r g b a) = RGBA r g b (f*a)
