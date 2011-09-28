@@ -105,13 +105,13 @@ RGBA r g b a `over` RGBA r' g' b' a' = RGBA (x2 r r') (x2 g g') (x2 b b') a2
 instance Num Color where
     fromInteger a  = (fromInteger a,fromInteger a,fromInteger a,fromInteger a)
     RGB r g b a + RGB r' g' b' a' = RGB (r+r') (g+g') (b+b') (a'+a')
-    RGB r g b a * RGB r' g' b' a' = (a*a',b*b',c*c',d*d')
-    RGB r g b a - RGB r' g' b' a' = (a-a',b-b',c-c',d-d')
+    RGB r g b a * RGB r' g' b' a' = RGB (r*r') (g*g') (b*b') (a'*a')
+    RGB r g b a - RGB r' g' b' a' = RGB (r-r') (g-g') (b-b') (a'-a')
     abs (RGB r g b a)             = (abs a,abs b,abs c,abs d)
     signum (RGB r g b a)          = (signum a,signum b,signum c,signum d)
 instance Fractional Color where
     fromRational a  = RGBA (fromRational a) (fromRational a) (fromRational a) (fromRational a)
-    (a,b,c,d) / (a',b',c',d') = (a/a',b/b',c/c',d/d')
+    RGB r g b a / RGB r' g' b' a' = RGB (r/r') (g/g') (b/b') (a'/a')
 -}
 
 -------------------------------------------------------------------------------
