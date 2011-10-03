@@ -14,8 +14,8 @@ module Graphics.GridDiagrams
 
 	-- * Lifted Cairo operations
     , liftCairo
-    , setLineWidth, setColor, selectFontFace, setFontSize, setLineCap, setLineJoin
-    , FontSlant(..), FontWeight(..), LineCap(..), LineJoin(..)
+    , setColor, setOperator, setFillRule, setLineWidth, setMiterLimit, setLineCap, setLineJoin, setDash, setDashSolid, setDashDashed, selectFontFace, setFontSize
+    , Operator(..), FillRule(..), LineCap(..), LineJoin(..), FontSlant(..), FontWeight(..)
     , fill, stroke, fillPreserve, fillStroke, extend
     , saved, translated
     , circle, rectangle, line, showText, showTextCentered
@@ -35,7 +35,7 @@ import Control.Monad.Trans
 import Control.Monad.Reader
 import Control.Monad.Writer
 import qualified Graphics.Rendering.Cairo as C
-import Graphics.Rendering.Cairo (FontSlant(..), FontWeight(..), LineCap(..), LineJoin(..))
+import Graphics.Rendering.Cairo (Operator(..), FillRule(..), LineCap(..), LineJoin(..), FontSlant(..), FontWeight(..))
 
 -------------------------------------------------------------------------------
 -- Working with colors
@@ -175,6 +175,12 @@ getGridSize = R $ asks gridSize
 
 -- lifting Cairo ops
 
+setOperator :: Operator -> Diagram
+setOperator = liftCairo . C.setOperator
+
+setFillRule :: FillRule -> Diagram
+setFillRule = liftCairo . C.setFillRule
+
 setLineWidth :: Double -> Diagram
 setLineWidth = liftCairo . C.setLineWidth
 
@@ -183,6 +189,20 @@ setLineCap = liftCairo . C.setLineCap
 
 setLineJoin :: LineJoin -> Diagram
 setLineJoin = liftCairo . C.setLineJoin
+
+setMiterLimit :: Double -> Diagram
+setMiterLimit = liftCairo . C.setMiterLimit
+
+setDash :: [Double] -- ^ a list specifying alternate lengths of on and off portions of the stroke 
+        -> Double -- ^ an offset into the dash pattern at which the stroke should start 
+        -> Diagram
+setDash a b = liftCairo $ C.setDash a b
+
+setDashSolid :: Diagram
+setDashSolid = setDash [] 0
+
+setDashDashed :: Double -> Diagram
+setDashDashed len = setDash [len,len] 0
 
 setFontSize :: Double -> Diagram
 setFontSize = liftCairo . C.setFontSize
