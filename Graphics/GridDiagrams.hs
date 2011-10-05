@@ -7,8 +7,9 @@ module Graphics.GridDiagrams
     , transparent, gray, white, black, red, green, blue, cyan, magenta, yellow
     , alpha, over
     
+    -- * Diagram type
     , Render, Diagram, RenderOpts(..), defaultRenderOpts
-    , getGridSize
+    , getGridSize, getPixelSize
     
     , renderToFile, renderToFile'
 
@@ -19,6 +20,7 @@ module Graphics.GridDiagrams
     , fill, stroke, fillPreserve, fillStroke, extend
     , saved, translated
     , circle, rectangle, line, showText, showTextCentered
+    , lineTo, moveTo, path
     
     , Drawable(..)
     , drawRowsWith, drawColsWith, drawCellsWith, drawCells
@@ -169,6 +171,9 @@ liftSep a b = R $ lift (R_ a b)
 getGridSize :: Render Double
 getGridSize = R $ asks gridSize
 
+getPixelSize :: Render Double
+getPixelSize = R $ asks (recip . gridSize)
+
 -------------------------------------------------------------------------------
 -- Lifted Cairo operations
 -------------------------------------------------------------------------------
@@ -237,29 +242,43 @@ fillStroke f s = setColor f >> fillPreserve >> setColor s >> stroke
 saved :: Diagram -> Diagram
 saved r = liftCairo C.save >> r >> liftCairo C.restore
 
-translated :: Double -> Double -> Diagram -> Diagram
+translated :: Real a => a -> a -> Diagram -> Diagram
 translated x y r = do
     g <- getGridSize
-    saved $ liftCairo (C.translate (x*g) (y*g)) >> r
+    saved $ liftCairo (C.translate (realToFrac x*g) (realToFrac y*g)) >> r
 
 -------------------------------------------------------------------------------
 -- Drawing primitives
 -------------------------------------------------------------------------------
 
-circle :: Double -> Double -> Double -> Diagram
+circle :: Real a => a -> a -> Double -> Diagram
 circle x y r = do
     g <- getGridSize
-    liftCairo $ C.arc (x*g) (y*g) (r*g) 0 (2*pi)
+    liftCairo $ C.arc (realToFrac x*g) (realToFrac y*g) (r*g) 0 (2*pi)
 
-rectangle :: Double -> Double -> Double -> Double -> Diagram
+rectangle :: Real a => a -> a -> a -> a -> Diagram
 rectangle x y w h = do
     g <- getGridSize
-    liftCairo $ C.rectangle (x*g) (y*g) (w*g) (h*g)
+    liftCairo $ C.rectangle (realToFrac x*g) (realToFrac y*g) (realToFrac w*g) (realToFrac h*g)
 
-line :: Double -> Double -> Double -> Double -> Diagram
-line x y x' y' = do
+moveTo :: Real a => a -> a -> Diagram
+moveTo x y = do
     g <- getGridSize
-    saved $ liftCairo $ C.moveTo (x*g) (y*g) >> C.lineTo (x'*g) (y'*g)
+    liftCairo $ C.moveTo (realToFrac x*g) (realToFrac y*g)
+
+lineTo :: Real a => a -> a -> Diagram
+lineTo x y = do
+    g <- getGridSize
+    liftCairo $ C.lineTo (realToFrac x*g) (realToFrac y*g)
+
+path :: Real a => [(a,a)] -> Diagram
+path [] = return ()
+path ((x,y):xys) = do
+    moveTo x y
+    forM_ xys $ uncurry lineTo
+
+line :: Real a => a -> a -> a -> a -> Diagram
+line x y x' y' = path [(x,y),(x',y')]
 
 showText :: String -> Render ()
 showText str = liftSep (toExtents =<< lift (C.textExtents str)) (C.showText str)
