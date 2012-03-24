@@ -26,6 +26,7 @@ module Graphics.GridDiagrams
     , drawRowsWith, drawColsWith, drawCellsWith, drawCells
     , drawRowBorders, drawColBorders, drawBordersWith, drawBorders
     , drawGrid
+    , drawStringCell
     -- * Borders around \/ between cells
     , Orientation(..), drawBorder, borderNone, borderSimple, borderIfSame
     ) where
@@ -284,7 +285,7 @@ showText :: String -> Render ()
 showText str = liftSep (toExtents =<< lift (C.textExtents str)) (C.showText str)
   where
     toExtents e = do
-        (x,y) <- lift $ C.userToDevice 0 0
+        (x,y) <- lift $ uncurry C.userToDevice =<< C.getCurrentPoint
         (w,h) <- lift $ C.userToDeviceDistance (C.textExtentsWidth e) (C.textExtentsHeight e)
         let e' = Extents x (y-h) (x+w) y
         tell $ e'
@@ -292,7 +293,7 @@ showText str = liftSep (toExtents =<< lift (C.textExtents str)) (C.showText str)
 showTextCentered :: String -> Render ()
 showTextCentered str = saved $ do
     ext <- liftCairo $ C.textExtents str
-    liftCairo $ C.translate (-0.5 * C.textExtentsXadvance ext) (0.5 * C.textExtentsHeight ext)
+    liftCairo $ C.moveTo (-0.5 * C.textExtentsXadvance ext) (0.5 * C.textExtentsHeight ext)
     showText str
 
 -------------------------------------------------------------------------------
@@ -401,10 +402,14 @@ instance Drawable Color where
 
 instance Drawable String where
     draw str = do
+        setColor black
+        drawStringCell str
+
+drawStringCell :: String -> Render ()
+drawStringCell str = do
         g <- getGridSize
         selectFontFace "Ubuntu" C.FontSlantNormal C.FontWeightNormal
         setFontSize (g * 0.75)
-        setColor black
         translated 0.5 0.5 $ showTextCentered str
 
 instance Drawable a => Drawable [[a]] where
